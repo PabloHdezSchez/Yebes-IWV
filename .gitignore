@@ -1,0 +1,6 @@
+# Ignorar data y plots
+/data
+/plots
+
+# Caché de python
+__pycache__
