@@ -37,7 +37,7 @@ def main():
     # Consulta SQL
     sql = f"""
         SELECT ts, temp, hum
-        FROM wheatherlog
+        FROM weatherlog
         WHERE YEAR(ts) = {args.year}
         ORDER BY ts
     """

@@ -36,11 +36,13 @@ def parse_args():
     -y YEAR: año a analizar
     -w WINDOW: tamaño de la ventana para la media móvil centrada
     -f FILES: lista de archivos CSV de entrada
+    --show: si está presente, muestra los gráficos además de guardarlos
     """
     parser = argparse.ArgumentParser(description="Procesa y grafica valores de IWV de estaciones GNSS.")
     parser.add_argument('-y', '--year', type=int, default=datetime.now().year, help='Año a analizar (por defecto, año actual)')
     parser.add_argument('-w', '--window', type=int, default=250, help='Tamaño de la ventana para la media móvil centrada')
     parser.add_argument('-f', '--files', nargs='+', required=True, help='Lista de archivos CSV de entrada')
+    parser.add_argument('--show', action='store_true', help='Muestra los gráficos en pantalla además de guardarlos')
     return parser.parse_args()
 
 def filter_date(fecha: datetime, year: int) -> bool:
@@ -128,9 +130,10 @@ def save_avg_data(fecha_arr: List[datetime], iwv_arr: List[float], year: int):
             writer.writerow([fecha_arr[i], iwv_arr[i]])
     print(f"Nuevo fichero con las medias guardado en {output_file}")
 
-def plot_station_data(files: List[str], year: int, window: int):
+def plot_station_data(files: List[str], year: int, window: int, show_plots: bool):
     """
     Grafica los datos originales y la media móvil de cada estación GNSS.
+    Si show_plots es True, muestra los gráficos en pantalla.
     """
     plt.figure(figsize=(10, 5))
     plt.title(f"Valores de IWV GNSS")
@@ -146,11 +149,14 @@ def plot_station_data(files: List[str], year: int, window: int):
     plt.tight_layout()
     os.makedirs("plots", exist_ok=True)
     plt.savefig(f"plots/iwv_plot_fuentes_{year}.png")
-    plt.show()
+    if show_plots:
+        plt.show()
+    plt.close()
 
-def plot_combined_data(year: int, window: int):
+def plot_combined_data(year: int, window: int, show_plots: bool):
     """
     Grafica la serie combinada (media de estaciones) y su media móvil centrada.
+    Si show_plots es True, muestra los gráficos en pantalla.
     """
     sorted_dates = sorted(final_result)
     values = [final_result[fecha] for fecha in sorted_dates]
@@ -170,7 +176,9 @@ def plot_combined_data(year: int, window: int):
     plt.tight_layout()
     os.makedirs("plots", exist_ok=True)
     plt.savefig(f"plots/iwv_final_plot_{year}.png")
-    plt.show()
+    if show_plots:
+        plt.show()
+    plt.close()
 
 def main():
     """
@@ -178,8 +186,8 @@ def main():
     """
     args = parse_args()
     save_data(args.files, args.year, args.window)
-    plot_station_data(args.files, args.year, args.window)
-    plot_combined_data(args.year, args.window)
+    plot_station_data(args.files, args.year, args.window, args.show)
+    plot_combined_data(args.year, args.window, args.show)
 
 if __name__ == "__main__":
     main()

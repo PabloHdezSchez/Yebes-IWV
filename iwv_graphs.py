@@ -4,19 +4,18 @@ Autor: Pablo H.
 Fecha: 07/25
 
 Descripción:
-Calcula y representa el IWV a partir de archivos de humedad y temperatura, y lo compara con los datos de Avg_data.csv.
+Calcula y representa el IWV a partir de un archivo combinado de humedad y temperatura, y lo compara con los datos de Avg_data.csv.
 
 Funcionamiento:
-- Lee los archivos 'data/Humidity_YYYY.csv' y 'data/Temperature_YYYY.csv'.
+- Lee el archivo 'data/HumTemp_{year}.csv' con columnas ts, temp, hum.
 - Limpia y convierte los valores numéricos.
-- Une los datos por fecha/hora.
-- Calcula el IWV para cada instante por dos métodos.
+- Calcula el IWV para cada instante por el método especificado.
 - Guarda los resultados en CSV.
-- Lee el archivo 'Avg_data_YYYY.csv' y representa los IWV calculados junto al dato de referencia.
+- Lee el archivo 'Avg_data_{year}.csv' y representa los IWV calculados junto al dato de referencia.
 - Grafica los errores absolutos entre métodos y referencia.
 
 Uso:
-    python3 iwv_graphs.py [-h] [-y YEAR] [-hf H_FACTOR]
+    python3 iwv_graphs.py [-h] [-y YEAR] [-hf H_FACTOR] [--show]
 """
 
 import pandas as pd
@@ -30,22 +29,16 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Calcula y representa IWV a partir de humedad y temperatura.")
     parser.add_argument('-y', '--year', type=int, default=2025, help='Año de los datos a analizar')
     parser.add_argument('-hf', '--h_factor', type=float, default=2000, help='Factor de escala H')
+    parser.add_argument('--show', action='store_true', help='Muestra los gráficos en pantalla además de guardarlos')
     return parser.parse_args()
 
-def load_humidity(year):
-    """Carga y limpia el fichero de humedad."""
-    df_hum = pd.read_csv(f"data/Humidity_{year}.csv")
-    df_hum["Time"] = pd.to_datetime(df_hum["Time"])
-    df_hum["Humedad Relativa"] = df_hum["Humedad Relativa"].apply(lambda x: atm_c.clean_value(x, "%H"))
-    return df_hum
-
-def load_temperature(year):
-    """Carga y limpia el fichero de temperatura."""
-    df_temp = pd.read_csv(f"data/Temperature_{year}.csv")
-    df_temp = df_temp.rename(columns={"Time": "Time", "Temperatura": "Temp"})
-    df_temp["Time"] = pd.to_datetime(df_temp["Time"])
-    df_temp["Temp"] = df_temp["Temp"].apply(lambda x: atm_c.clean_value(x, "°C"))
-    return df_temp
+def load_humtemp(year):
+    """Carga y limpia el fichero combinado de humedad y temperatura."""
+    df = pd.read_csv(f"data/HumTemp_{year}.csv")
+    df["ts"] = pd.to_datetime(df["ts"])
+    df = df.rename(columns={"ts": "Time", "temp": "Temp", "hum": "Humedad Relativa"})
+    # Si los valores ya son numéricos, no hace falta limpiar
+    return df
 
 def load_avg_data(year):
     """Carga el fichero de IWV de referencia."""
@@ -54,7 +47,7 @@ def load_avg_data(year):
     return df_avg
 
 def calculate_iwv(df, h_scale_factor):
-    """Calcula IWV por ambos métodos y añade columna IWV al DataFrame."""
+    """Calcula IWV por el método clásico y añade columna IWV al DataFrame."""
     iwv_list = []
     for _, row in df.iterrows():
         iwv = atm_c.calc_iwv(row["Temp"], h_scale_factor, row["Humedad Relativa"])
@@ -68,7 +61,7 @@ def save_iwv_results(df, year, h_scale_factor):
     df.to_csv(output_file, index=False)
     print(f"Resultados IWV guardados en {output_file}")
 
-def plot_iwv(df, df_avg, iwv_list, year, h_scale_factor):
+def plot_iwv(df, df_avg, iwv_list, year, h_scale_factor, show_plots):
     """Grafica los IWV calculados y los de referencia."""
     plt.figure(figsize=(12, 6))
     plt.plot(df["Time"], iwv_list, label=f"IWV fórmula (H={h_scale_factor})")
@@ -81,14 +74,14 @@ def plot_iwv(df, df_avg, iwv_list, year, h_scale_factor):
     plt.tight_layout()
     os.makedirs("plots", exist_ok=True)
     plt.savefig(f"plots/iwv_calculado_vs_avg_{year}_hf{h_scale_factor}.png")
-    plt.show()
+    if show_plots:
+        plt.show()
+    plt.close()
 
-def plot_errors(df, df_avg, iwv_list, h_scale_factor):
+def plot_errors(df, df_avg, iwv_list, h_scale_factor, show_plots):
     """
     Grafica los errores absolutos entre:
     - Avg_data vs método clásico
-    - Avg_data vs método wh2o
-    - método clásico vs método wh2o
     """
     df_methods = pd.DataFrame({
         "Time": df["Time"],
@@ -117,20 +110,19 @@ def plot_errors(df, df_avg, iwv_list, h_scale_factor):
     plt.tight_layout()
     os.makedirs("plots", exist_ok=True)
     plt.savefig(f"plots/error_iwv_{df_avg.index[0].year}_hf{h_scale_factor}.png")
-    plt.show()
+    if show_plots:
+        plt.show()
+    plt.close()
 
 def main():
     args = parse_args()
     year = args.year
     h_scale_factor = args.h_factor
+    show_plots = args.show
 
     # Cargar datos
-    df_hum = load_humidity(year)
-    df_temp = load_temperature(year)
+    df = load_humtemp(year)
     df_avg = load_avg_data(year)
-
-    # Unir por fecha/hora
-    df = pd.merge(df_hum, df_temp, on="Time", how="inner")
 
     # Calcular IWV
     iwv_list = calculate_iwv(df, h_scale_factor)
@@ -139,8 +131,8 @@ def main():
     save_iwv_results(df, year, h_scale_factor)
 
     # Graficar IWV y errores
-    plot_iwv(df, df_avg, iwv_list, year, h_scale_factor)
-    plot_errors(df, df_avg, iwv_list, h_scale_factor)
+    plot_iwv(df, df_avg, iwv_list, year, h_scale_factor, show_plots)
+    plot_errors(df, df_avg, iwv_list, h_scale_factor, show_plots)
 
 if __name__ == "__main__":
     main()
