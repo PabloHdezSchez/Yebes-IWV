@@ -125,7 +125,7 @@ def save_avg_data(fecha_arr: List[datetime], iwv_arr: List[float], year: int):
     output_file = f"data/Avg_data_{year}.csv"
     with open(output_file, 'w', newline='') as outfile:
         writer = csv.writer(outfile)
-        writer.writerow(["fecha", "IWV"])
+        writer.writerow(["Time", "IWV"])
         for i in range(0, len(fecha_arr)):
             writer.writerow([fecha_arr[i], iwv_arr[i]])
     print(f"Nuevo fichero con las medias guardado en {output_file}")
@@ -135,7 +135,7 @@ def plot_station_data(files: List[str], year: int, window: int, show_plots: bool
     Grafica los datos originales y la media móvil de cada estación GNSS.
     Si show_plots es True, muestra los gráficos en pantalla.
     """
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(12, 6))
     plt.title(f"Valores de IWV GNSS")
     plt.xlabel("Fecha")
     plt.ylabel("IWV (mm)")
@@ -164,7 +164,7 @@ def plot_combined_data(year: int, window: int, show_plots: bool):
 
     save_avg_data(sorted_dates, avg_values, year)
 
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(12, 6))
     plt.title("Valores de IWV Cenital")
     plt.xlabel("Fecha")
     plt.ylabel("IWV (mm)")

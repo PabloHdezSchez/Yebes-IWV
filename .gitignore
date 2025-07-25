@@ -2,5 +2,11 @@
 /data
 /plots
 
+# Binarios atm
+/atm/atm
+
+# auto
+auto.sh
+
 # Caché de python
 __pycache__

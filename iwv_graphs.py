@@ -43,7 +43,7 @@ def load_humtemp(year):
 def load_avg_data(year):
     """Carga el fichero de IWV de referencia."""
     df_avg = pd.read_csv(f"data/Avg_data_{year}.csv")
-    df_avg["fecha"] = pd.to_datetime(df_avg["fecha"])
+    df_avg["Time"] = pd.to_datetime(df_avg["Time"])
     return df_avg
 
 def calculate_iwv(df, h_scale_factor):
@@ -57,7 +57,7 @@ def calculate_iwv(df, h_scale_factor):
 
 def save_iwv_results(df, year, h_scale_factor):
     """Guarda los resultados de IWV en un CSV."""
-    output_file = f"data/IWV_calculado_{year}_hf{h_scale_factor}.csv"
+    output_file = f"data/IWV_calculado_{year}_hf{int(h_scale_factor)}.csv"
     df.to_csv(output_file, index=False)
     print(f"Resultados IWV guardados en {output_file}")
 
@@ -65,7 +65,7 @@ def plot_iwv(df, df_avg, iwv_list, year, h_scale_factor, show_plots):
     """Grafica los IWV calculados y los de referencia."""
     plt.figure(figsize=(12, 6))
     plt.plot(df["Time"], iwv_list, label=f"IWV fórmula (H={h_scale_factor})")
-    plt.plot(df_avg["fecha"], df_avg["IWV"], color='red', label="IWV Avg_data.csv")
+    plt.plot(df_avg["Time"], df_avg["IWV"], color='red', label="IWV Avg_data.csv")
     plt.xlabel("Fecha")
     plt.ylabel("IWV")
     plt.title(f"IWV calculado vs IWV referencia {year} (H Factor = {h_scale_factor})")
@@ -73,7 +73,7 @@ def plot_iwv(df, df_avg, iwv_list, year, h_scale_factor, show_plots):
     plt.grid()
     plt.tight_layout()
     os.makedirs("plots", exist_ok=True)
-    plt.savefig(f"plots/iwv_calculado_vs_avg_{year}_hf{h_scale_factor}.png")
+    plt.savefig(f"plots/iwv_calculado_vs_avg_{year}_hf{int(h_scale_factor)}.png")
     if show_plots:
         plt.show()
     plt.close()
@@ -90,7 +90,7 @@ def plot_errors(df, df_avg, iwv_list, h_scale_factor, show_plots):
 
     # Eliminar duplicados en el índice (mantener el primero)
     df_methods = df_methods[~df_methods.index.duplicated(keep='first')]
-    df_avg = df_avg.set_index("fecha")
+    df_avg = df_avg.set_index("Time")
     df_avg = df_avg[~df_avg.index.duplicated(keep='first')]
 
     # Reindexar para que coincidan los tiempos
@@ -109,7 +109,7 @@ def plot_errors(df, df_avg, iwv_list, h_scale_factor, show_plots):
     plt.grid()
     plt.tight_layout()
     os.makedirs("plots", exist_ok=True)
-    plt.savefig(f"plots/error_iwv_{df_avg.index[0].year}_hf{h_scale_factor}.png")
+    plt.savefig(f"plots/error_iwv_{df_avg.index[0].year}_hf{int(h_scale_factor)}.png")
     if show_plots:
         plt.show()
     plt.close()
