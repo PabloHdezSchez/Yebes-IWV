@@ -25,6 +25,7 @@ Este repositorio contiene herramientas para la descarga, procesamiento, análisi
   - Ejecuta una consulta SQL para obtener los datos de un año concreto.
   - Guarda los resultados en `data/HumTemp_YEAR.csv` con columnas `ts`, `temp`, `hum`.
 - **Uso:**  
+
   ```bash
   python3 get_hum_temp_csv.py --host HOST --user USER --pwd PASSWORD --db DATABASE --year YEAR
   ```
@@ -90,17 +91,18 @@ Este repositorio contiene herramientas para la descarga, procesamiento, análisi
 - **Función:** Calcula la opacidad atmosférica a partir de ficheros de IWV usando el ejecutable ATM y representa los resultados.
 - **Funcionamiento:**
   - Toma cualquier cantidad de ficheros CSV con columnas `Time` e `IWV`.
-  - Para cada valor de IWV, sustituye todas las ocurrencias de `%0` en `input.atm` y ejecuta `./atm/atm`.
+  - Para cada valor de IWV y para cada frecuencia indicada, sustituye todas las ocurrencias de `%0` (IWV) y `%1` (frecuencia) en `input.atm` y ejecuta `./atm/atm`.
   - Extrae el valor de `total atmospheric opacity` (primera columna) de la salida.
   - Permite reducir el número de muestras procesadas usando el parámetro `--period`.
-  - Representa una curva de opacidad para cada fichero, con leyenda, y guarda la imagen en `./plots/atm_opacity.png`.
+  - Representa una curva de opacidad para cada fichero y frecuencia, con leyenda, y guarda una imagen PNG por frecuencia en `./plots/atm_opacity_{freq}.png`.
 - **Uso:**  
 
   ```bash
-  python3 opacity_graphs.py file1.csv file2.csv ... [--period N]
+  python3 opacity_graphs.py file1.csv file2.csv ... --freq 41.2,43.0 [--period N]
   ```
 
   - `file1.csv file2.csv ...`: Ficheros de entrada con columnas `Time` e `IWV`.
+  - `--freq`: Lista de frecuencias en GHz separadas por coma (obligatorio, ej: 41.2,43.0).
   - `--period N`: Procesa solo una de cada N muestras (opcional, por defecto 1).
 
 ---
@@ -110,13 +112,13 @@ Este repositorio contiene herramientas para la descarga, procesamiento, análisi
 A continuación se muestran ejemplos de las gráficas generadas por los scripts:
 
 - Representa los datos de IWV medidos por una de las estaciones y su media móvil.
-- ![iwv_plot_fuentes_2025.png](Example_results/iwv_plot_fuentes_2025.png)
+![iwv_plot_fuentes_2025.png](Example_results/iwv_plot_fuentes_2025.png)
 
 - Representa los valores de IWV calculados aplicando la fórmula junto a la media móvil previamente obtenida.
-- ![iwv_calculado_vs_avg_2025_hf1340.png](Example_results/iwv_calculado_vs_avg_2025_hf1340.png)
+![iwv_calculado_vs_avg_2025_hf1340.png](Example_results/iwv_calculado_vs_avg_2025_hf1340.png)
 
-- Representa la opacidad atmosferica calculada mediante el programa ATM tomando como entrada los valores de IWV tanto de la media de las mediciones como los valores calculados para comparar.
-- ![atm_opacity_1340_2025.png](Example_results/atm_opacity_1340_2025.png)
+- Representa la opacidad atmosferica a 80GHz calculada mediante el programa ATM tomando como entrada los valores de IWV tanto de la media de las mediciones como los valores calculados para comparar.
+![atm_opacity_1340_2025.png](Example_results/atm_opacity_80p0.png)
 
 ---
 

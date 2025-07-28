@@ -4,6 +4,6 @@ wint
 airm 1.0
 alti 0.98
 wh2o %0
-freq 41.2
+freq %1
 comp
 exit
