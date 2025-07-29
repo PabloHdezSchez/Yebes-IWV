@@ -110,6 +110,59 @@ def plot_opacities(results, freq):
     plt.close()
     print(f"Gráfica guardada en {os.path.join(PLOTS_DIR, f'atm_opacity_{freq_str}.png')}")
 
+def error_relativo(opacidad1, opacidad2):
+    """
+    Calcula el error relativo entre dos valores de opacidad.
+    Modifica aquí la fórmula si lo necesitas en el futuro.
+    """
+    if opacidad1 == 0 or opacidad1 is None or opacidad2 is None:
+        return None
+    return abs(opacidad1 - opacidad2) / opacidad1
+
+def plot_error_relativo(results, freq):
+    """
+    Calcula y grafica el error relativo entre las dos fuentes para una frecuencia dada.
+    Solo se ejecuta si hay exactamente dos archivos.
+    """
+    if len(results) != 2:
+        print("El error relativo se calcula únicamente si hay 2 archivos.")
+        return
+
+    # Obtener los datos de ambos ficheros
+    labels = list(results.keys())
+    times1, opacities1 = results[labels[0]]
+    times2, opacities2 = results[labels[1]]
+
+    # Redondear los tiempos a minutos para comparar
+    times1_rounded = pd.to_datetime(times1).dt.floor('min')
+    times2_rounded = pd.to_datetime(times2).dt.floor('min')
+
+    # Crear diccionarios para acceso rápido
+    dict1 = dict(zip(times1_rounded, opacities1))
+    dict2 = dict(zip(times2_rounded, opacities2))
+
+    # Intersección de fechas
+    common_times = sorted(set(dict1.keys()) & set(dict2.keys()))
+
+    error_rel = [error_relativo(dict1[t], dict2[t]) for t in common_times]
+
+    # Filtrar posibles None
+    filtered_times = [t for t, e in zip(common_times, error_rel) if e is not None]
+    filtered_errors = [e for e in error_rel if e is not None]
+
+    # Graficar
+    plt.figure(figsize=(12, 6))
+    plt.plot(filtered_times, filtered_errors, label="Error relativo")
+    plt.xlabel("Fecha")
+    plt.ylabel("Error relativo de opacidad")
+    plt.title(f"Error relativo de opacidad entre fuentes (freq = {freq} GHz)")
+    plt.grid()
+    plt.tight_layout()
+    freq_str = str(freq).replace('.', 'p')
+    plt.savefig(os.path.join(PLOTS_DIR, f"error_relativo_opacidad_{freq_str}.png"))
+    plt.close()
+    print(f"Gráfica de error relativo guardada en {os.path.join(PLOTS_DIR, f'error_relativo_opacidad_{freq_str}.png')}")
+
 def main():
     args = parse_args()
     freq_list = [float(f) for f in args.freq.split(",")]
@@ -121,6 +174,7 @@ def main():
             times, opacities = process_file(csv_file, ATM_INPUT_TEMPLATE, freq, period=args.period)
             results[label] = (times, opacities)
         plot_opacities(results, freq)
+        plot_error_relativo(results, freq)
 
 if __name__ == "__main__":
     main()
