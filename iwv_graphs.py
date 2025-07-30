@@ -8,6 +8,7 @@ Calcula y representa el IWV a partir de un archivo combinado de humedad y temper
 
 Funcionamiento:
 - Lee el archivo 'data/HumTemp_{year}.csv' con columnas ts, temp, hum.
+- Filtra solo los datos a las horas: en punto, cuarto, media y menos cuarto.
 - Limpia y convierte los valores numéricos.
 - Calcula el IWV para cada instante por el método especificado.
 - Guarda los resultados en CSV.
@@ -32,18 +33,30 @@ def parse_args():
     parser.add_argument('--show', action='store_true', help='Muestra los gráficos en pantalla además de guardarlos')
     return parser.parse_args()
 
+def filter_quarter_hours(df):
+    """
+    Filtra el DataFrame para mantener solo las horas: en punto (00), cuarto (15), media (30) y menos cuarto (45).
+    """
+    df['Time'] = pd.to_datetime(df['Time'])
+    # Filtrar por minutos: 00, 15, 30, 45
+    quarter_hours = df[df['Time'].dt.minute.isin([0, 15, 30, 45])]
+    return quarter_hours
+
 def load_humtemp(year):
     """Carga y limpia el fichero combinado de humedad y temperatura."""
     df = pd.read_csv(f"data/HumTemp_{year}.csv")
     df["ts"] = pd.to_datetime(df["ts"])
     df = df.rename(columns={"ts": "Time", "temp": "Temp", "hum": "Humedad Relativa"})
-    # Si los valores ya son numéricos, no hace falta limpiar
+    # Filtrar solo datos de cuartos de hora
+    df = filter_quarter_hours(df)
     return df
 
 def load_avg_data(year):
     """Carga el fichero de IWV de referencia."""
     df_avg = pd.read_csv(f"data/Avg_data_{year}.csv")
     df_avg["Time"] = pd.to_datetime(df_avg["Time"])
+    # Filtrar solo datos de cuartos de hora
+    df_avg = filter_quarter_hours(df_avg)
     return df_avg
 
 def calculate_iwv(df, h_scale_factor):

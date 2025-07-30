@@ -100,7 +100,7 @@ def plot_opacities(results, freq):
         plt.plot(times, opacities, label=label)
     plt.xlabel("Fecha")
     plt.ylabel("Opacidad atmosférica total")
-    plt.title(f"Opacidad atmosférica calculada con ATM (freq = {freq} GHz)")
+    plt.title(f"Opacidad atmosférica calculada con ATM (frec = {freq} GHz)")
     plt.legend()
     plt.grid()
     plt.tight_layout()
@@ -121,11 +121,11 @@ def error_relativo(opacidad1, opacidad2):
 
 def plot_error_relativo(results, freq):
     """
-    Calcula y grafica el error relativo entre las dos fuentes para una frecuencia dada.
+    Calcula y grafica la desviación relativa entre las dos fuentes para una frecuencia dada.
     Solo se ejecuta si hay exactamente dos archivos.
     """
     if len(results) != 2:
-        print("El error relativo se calcula únicamente si hay 2 archivos.")
+        print("La desviación relativa se calcula únicamente si hay 2 archivos.")
         return
 
     # Obtener los datos de ambos ficheros
@@ -152,16 +152,16 @@ def plot_error_relativo(results, freq):
 
     # Graficar
     plt.figure(figsize=(12, 6))
-    plt.plot(filtered_times, filtered_errors, label="Error relativo")
+    plt.plot(filtered_times, filtered_errors, label="Desviación relativa")
     plt.xlabel("Fecha")
-    plt.ylabel("Error relativo de opacidad")
-    plt.title(f"Error relativo de opacidad entre fuentes (freq = {freq} GHz)")
+    plt.ylabel("Desviación relativa de opacidad")
+    plt.title(f"Desviación relativa de opacidad entre fuentes (frec = {freq} GHz)")
     plt.grid()
     plt.tight_layout()
     freq_str = str(freq).replace('.', 'p')
-    plt.savefig(os.path.join(PLOTS_DIR, f"error_relativo_opacidad_{freq_str}.png"))
+    plt.savefig(os.path.join(PLOTS_DIR, f"desviacion_relativa_opacidad_{freq_str}.png"))
     plt.close()
-    print(f"Gráfica de error relativo guardada en {os.path.join(PLOTS_DIR, f'error_relativo_opacidad_{freq_str}.png')}")
+    print(f"Gráfica de desviación relativa guardada en {os.path.join(PLOTS_DIR, f'desviacion_relativa_opacidad_{freq_str}.png')}")
 
 def main():
     args = parse_args()
@@ -170,7 +170,23 @@ def main():
         results = {}
         for csv_file in args.files:
             print(f"Procesando {csv_file} para frecuencia {freq} GHz...")
-            label = os.path.basename(csv_file)
+            
+            # Determinar label según el formato del archivo
+            basename = os.path.basename(csv_file)
+            if basename.startswith("Avg_data"):
+                label = "IWV de GNSS"
+            elif basename.startswith("IWV_calculado"):
+                # Extraer factor de escala H del formato *hf{factor}.csv
+                import re
+                match = re.search(r'hf(\d+(?:\.\d+)?)\.csv', basename)
+                if match:
+                    h_factor = match.group(1)
+                    label = f"Parametros Atmosfericos (H ={h_factor})"
+                else:
+                    label = basename
+            else:
+                label = basename
+            
             times, opacities = process_file(csv_file, ATM_INPUT_TEMPLATE, freq, period=args.period)
             results[label] = (times, opacities)
         plot_opacities(results, freq)

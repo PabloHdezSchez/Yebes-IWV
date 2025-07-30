@@ -137,6 +137,6 @@ A continuación se muestran ejemplos de las gráficas generadas por los scripts:
 
 ---
 
-## Contacto
+## Autor
 
-Para dudas o mejoras, contactar con Pablo H.
+Pablo H.
