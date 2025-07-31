@@ -158,6 +158,7 @@ HFACTOR=1850
 # Calculo de la opacidad
 ./opacity_graphs.py --period 1 data/Avg_data_${YEAR}.csv data/IWV_calculado_${YEAR}_hf${HFACTOR}.csv --freq 18,30,50,75,85
 ```
+
 ---
 
 ## Notas adicionales
