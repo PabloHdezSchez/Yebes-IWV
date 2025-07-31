@@ -98,9 +98,9 @@ def plot_opacities(results, freq):
     plt.figure(figsize=(12, 6))
     for label, (times, opacities) in results.items():
         plt.plot(times, opacities, label=label)
-    plt.xlabel("Fecha")
-    plt.ylabel("Opacidad atmosférica total")
-    plt.title(f"Opacidad atmosférica calculada con ATM (frec = {freq} GHz)")
+    plt.xlabel("Date")
+    plt.ylabel("Total atmospheric opacity")
+    plt.title(f"Atmospheric opacity calculated with ATM (freq = {freq} GHz)")
     plt.legend()
     plt.grid()
     plt.tight_layout()
@@ -152,10 +152,10 @@ def plot_error_relativo(results, freq):
 
     # Graficar
     plt.figure(figsize=(12, 6))
-    plt.plot(filtered_times, filtered_errors, label="Desviación relativa")
-    plt.xlabel("Fecha")
-    plt.ylabel("Desviación relativa de opacidad")
-    plt.title(f"Desviación relativa de opacidad entre fuentes (frec = {freq} GHz)")
+    plt.plot(filtered_times, filtered_errors, label="Opacity ratio")
+    plt.xlabel("Date")
+    plt.ylabel("Opacity ratio")
+    plt.title(f"Opacity ratio between IWV data sources (freq = {freq} GHz)")
     plt.grid()
     plt.tight_layout()
     freq_str = str(freq).replace('.', 'p')
@@ -174,14 +174,14 @@ def main():
             # Determinar label según el formato del archivo
             basename = os.path.basename(csv_file)
             if basename.startswith("Avg_data"):
-                label = "IWV de GNSS"
+                label = "GNSS"
             elif basename.startswith("IWV_calculado"):
                 # Extraer factor de escala H del formato *hf{factor}.csv
                 import re
                 match = re.search(r'hf(\d+(?:\.\d+)?)\.csv', basename)
                 if match:
                     h_factor = match.group(1)
-                    label = f"Parámetros Atmosféricos (H ={h_factor})"
+                    label = f"Atmospheric Parameters (H ={h_factor})"
                 else:
                     label = basename
             else:

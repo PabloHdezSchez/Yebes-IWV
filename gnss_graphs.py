@@ -136,15 +136,15 @@ def plot_station_data(files: List[str], year: int, window: int, show_plots: bool
     Si show_plots es True, muestra los gráficos en pantalla.
     """
     plt.figure(figsize=(12, 6))
-    plt.title(f"Valores de IWV GNSS")
-    plt.xlabel("Fecha")
+    plt.title(f"IWV GNSS values")
+    plt.xlabel("Date")
     plt.ylabel("IWV (mm)")
     plt.xticks(rotation=45)
     plt.grid()
     for idx, (curr_dates, curr_data, curr_avg_data) in enumerate(zip(fechas_arrs, data_arrs, data_avg_arrs), start=1):
         label_base = files[idx - 1].split("/")[-1].split("_")[0]
-        plt.plot(curr_dates, curr_data, linestyle='-', label=f'Datos {label_base}')
-        plt.plot(curr_dates, curr_avg_data, linestyle='-', label=f'Media {label_base}')
+        plt.plot(curr_dates, curr_data, linestyle='-', label=f'Data {label_base}')
+        plt.plot(curr_dates, curr_avg_data, linestyle='-', label=f'Average {label_base}')
     plt.legend(loc='best')
     plt.tight_layout()
     os.makedirs("plots", exist_ok=True)
@@ -165,13 +165,13 @@ def plot_combined_data(year: int, window: int, show_plots: bool):
     save_avg_data(sorted_dates, avg_values, year)
 
     plt.figure(figsize=(12, 6))
-    plt.title("Valores de IWV Cenital")
-    plt.xlabel("Fecha")
+    plt.title("Zenith IWV values")
+    plt.xlabel("Date")
     plt.ylabel("IWV (mm)")
     plt.xticks(rotation=45)
     plt.grid()
-    plt.plot(sorted_dates, values, linestyle='-', color='c', label='Media de las estaciones GNSS')
-    plt.plot(sorted_dates, avg_values, linestyle='-', color='red', label='Media móvil')
+    plt.plot(sorted_dates, values, linestyle='-', color='c', label='Average value of GNSS stations')
+    plt.plot(sorted_dates, avg_values, linestyle='-', color='red', label='Moving average')
     plt.legend(loc='best')
     plt.tight_layout()
     os.makedirs("plots", exist_ok=True)

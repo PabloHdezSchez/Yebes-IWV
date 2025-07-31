@@ -77,11 +77,11 @@ def save_iwv_results(df, year, h_scale_factor):
 def plot_iwv(df, df_avg, iwv_list, year, h_scale_factor, show_plots):
     """Grafica los IWV calculados y los de referencia."""
     plt.figure(figsize=(12, 6))
-    plt.plot(df_avg["Time"], df_avg["IWV"], label="IWV de GNSS")
-    plt.plot(df["Time"], iwv_list, label=f"Parámetros atmosféricos (H={h_scale_factor})")
-    plt.xlabel("Fecha")
+    plt.plot(df_avg["Time"], df_avg["IWV"], label="IWV GNSS values")
+    plt.plot(df["Time"], iwv_list, label=f"Atmospheric Parameters (H Factor = {h_scale_factor})")
+    plt.xlabel("Date")
     plt.ylabel("IWV")
-    plt.title(f"IWV calculado vs IWV referencia {year} (H Factor = {h_scale_factor})")
+    plt.title(f"Calculated IWV vs. IWV GNSS value {year} (H Factor = {h_scale_factor})")
     plt.legend()
     plt.grid()
     plt.tight_layout()
@@ -114,7 +114,7 @@ def plot_errors(df, df_avg, iwv_list, h_scale_factor, show_plots):
 
     # Gráfica
     plt.figure(figsize=(12, 6))
-    plt.plot(df_avg.index, error_avg_clasico, label=f"|Avg - Formula iwv| (H={h_scale_factor})", color="red")
+    plt.plot(df_avg.index, error_avg_clasico, label=f"|Avg - Formula iwv| (H={h_scale_factor})")
     plt.xlabel("Fecha")
     plt.ylabel("Error absoluto IWV")
     plt.title(f"Errores absolutos de IWV (H Factor = {h_scale_factor})")
