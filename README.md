@@ -137,6 +137,36 @@ A continuación se muestran ejemplos de las gráficas generadas por los scripts:
 
 ---
 
+## Ejemplo
+
+```sh
+YEAR=2025
+HFACTOR=1850
+
+# Obtener datos GNSS
+./get_gnss_csv.py
+
+# Obtener datos de humedad y temperatura
+./get_hum_temp_csv.py --host <database> --user <user> --pwd <pass> --db <db> --year $YEAR
+
+# Generar gráficos de iwv de GNSS
+./gnss_graphs.py -y $YEAR -w 1 -f ./data/YEB1_pwv.csv ./data/YEBE_pwv.csv
+
+# Generar gráficos de iwv a partir de datos de humedad y temperatura y compararlos con GNSS
+./iwv_graphs.py -y $YEAR -hf $HFACTOR
+
+# Calculo de la opacidad
+./opacity_graphs.py --period 1 data/Avg_data_${YEAR}.csv data/IWV_calculado_${YEAR}_hf${HFACTOR}.csv --freq 18,30,50,75,85
+```
+
+---
+
+## Notas adicionales
+
+- Es necesario guardar el binario **atm** en el directorio **./atm/**.
+
+---
+
 ## Autor
 
 Pablo H.

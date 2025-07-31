@@ -78,7 +78,7 @@ def plot_iwv(df, df_avg, iwv_list, year, h_scale_factor, show_plots):
     """Grafica los IWV calculados y los de referencia."""
     plt.figure(figsize=(12, 6))
     plt.plot(df_avg["Time"], df_avg["IWV"], label="IWV de GNSS")
-    plt.plot(df["Time"], iwv_list, label=f"IWV Parámetros Atmosfericos (H={h_scale_factor})")
+    plt.plot(df["Time"], iwv_list, label=f"Parámetros atmosféricos (H={h_scale_factor})")
     plt.xlabel("Fecha")
     plt.ylabel("IWV")
     plt.title(f"IWV calculado vs IWV referencia {year} (H Factor = {h_scale_factor})")
