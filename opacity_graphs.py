@@ -181,7 +181,7 @@ def main():
                 match = re.search(r'hf(\d+(?:\.\d+)?)\.csv', basename)
                 if match:
                     h_factor = match.group(1)
-                    label = f"Parametros Atmosfericos (H ={h_factor})"
+                    label = f"Parámetros Atmosfericos (H ={h_factor})"
                 else:
                     label = basename
             else:
